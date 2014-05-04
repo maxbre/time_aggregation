@@ -1,0 +1,149 @@
+# my little reminder for (just some) time aggregation methods
+### obviously many other methods are also possible but not here contemplated (known)!
+
+*****
+
+## generate some fake data to play with
+
+#### time sequence using POSIXct class (storing date-time and many other features like tz, dst)
+
+```{r}
+# start and end of time seq
+start <- as.POSIXct('2014-05-01 00:00:00')
+end <- as.POSIXct('2014-05-02 00:00:00')
+
+# by sec
+bysec<-as.POSIXct(seq(start, end, by="sec"))
+#alternatively   
+bysec<-as.POSIXct(seq(start, end, by=1))
+
+# by min
+bymin<-as.POSIXct(seq(start, end, by="min"))
+# alternatively   
+bymin<-as.POSIXct(seq(start, end, by=60))
+
+# by hour
+byhour<-as.POSIXct(seq(start, end, by="hour"))
+# alternatively 
+byhour<-as.POSIXct(seq(start, end, by=60*60))
+
+# and so on for other time intervals...
+
+# eg. by 15 minutes
+by15min<-as.POSIXct(seq(start, end, by="15 mins"))
+# alternatively   
+by15min<-as.POSIXct(seq(start, end, by=60*15))
+
+```
+
+#### df with 3 vars 
+
+```{r}
+set.seed(123)
+v1<-rnorm(length(bymin), 5)
+
+set.seed(456)
+v2<-rnorm(length(bymin), 10)
+
+# here using bymin as time seq
+df<-data.frame(date=bymin,v1, v2)
+
+# introduce some random NAs
+df[sample(nrow(df),20),"v1"]<-NA
+df[sample(nrow(df),10),"v2"]<-NA
+
+summary(df)
+str(df)
+```
+
+## aggregation through base methods (no packages)
+****
+
+### mean by hour using format
+```{r}
+head(aggregate(df[c("v1","v2")], format(df["date"],"%Y-%m-%d %H"), mean, na.rm = TRUE))
+#alternatively
+head(aggregate(df[c(2,3)], format(df[1],"%Y-%m-%d %H"), mean, na.rm = TRUE))
+```
+
+### mean by hour using cut
+```{r}
+# see cut.POSIXt for refs
+head(aggregate(df[c("v1","v2")], list(date=cut(df$date, breaks="hour")), mean, na.rm = TRUE))
+```
+
+### mean by 15 mins using cut
+```{r}
+head(aggregate(df[c("v1","v2")], list(date=cut(df$date, breaks="15 mins")), mean, na.rm = TRUE))
+```
+
+## aggregation through some dedicated package methods
+****
+
+## library zoo (just some relvant examples)
+
+```{r}
+require(zoo)
+```
+### myzoo object
+```{r}
+myzoo<-zoo(cbind(df$v1,df$v2),df$date)
+str(myzoo)
+```
+#### note index() or time()
+
+### plot zoo series with lattice
+```{r}
+require(lattice)
+xyplot(myzoo, screens=c("v1","v2"),
+       scales = list(y = list(relation = "same"))
+       )
+xyplot(myzoo, superpose=TRUE, auto.key=list(text=c("v1", "v2")))
+
+```
+
+### mean by hour using format
+
+```{r}
+head(aggregate(myzoo, format(index(myzoo),"%Y-%m-%d %H"), mean, na.rm=TRUE))
+```
+
+
+### mean by hour 15 mins using cut
+
+```{r}
+head(aggregate(myzoo, cut(index(myzoo), breaks="15 mins"), mean, na.rm=TRUE))
+```
+
+### rolling average by 5 mins (trailing average)
+
+```{r}
+head(rollapply(myzoo,width=5,mean, align="right", na.rm=TRUE))
+```
+#### note that rollmean() does not handle NAs
+
+### rolling average by 5 mins (average at every 5 mins)
+
+```{r}
+head(rollapply(myzoo,width=5,FUN=mean, by=5,align="right", na.rm=TRUE))
+```
+
+
+
+
+
+## library xts
+```{r}
+require(xts)
+
+```
+## library chron
+```{r}
+require(chron)
+
+```
+## library lubridate
+```{r}
+require(lubridate)
+
+```
