@@ -1,11 +1,11 @@
 # my little reminder for (just some) time aggregation methods
-### obviously many other methods are also possible but not here contemplated (known)!
+### obviously many others are also possible but not here contemplated (known)!
 
 *****
 
 ## generate some fake data to play with
 
-#### time sequence using POSIXct class (storing date-time and many other features like tz, dst)
+#### time sequence using POSIXct class (storing date-time and many other features like tz, dst); the genreal rule of thumb is to stick with the simplest date/time class one needs (...and that's why I'm keeping up with the most complex and dangeorus one, ugh!) 
 
 
 ```r
@@ -37,7 +37,7 @@ by15min <- as.POSIXct(seq(start, end, by = 60 * 15))
 ```
 
 
-#### df with 3 vars 
+#### build up a df with 3 vars using "bymin" time sequence
 
 
 ```r
@@ -229,7 +229,7 @@ head(aggregate(myzoo, format(index(myzoo), "%Y-%m-%d %H"), mean, na.rm = TRUE))
 
 
 
-### mean by hour 15 mins using cut
+### mean by 15 mins using cut
 
 
 ```r
@@ -285,10 +285,8 @@ head(rollapply(myzoo, width = 5, FUN = mean, by = 5, align = "right", na.rm = TR
 
 
 
-
-
-
 ## library xts
+#### pretty similar to zoo object (derived by) but with some dedicated useful functions
 
 ```r
 require(xts)
@@ -298,29 +296,120 @@ require(xts)
 ## Loading required package: xts
 ```
 
-## library chron
+### myxts object
 
 ```r
-require(chron)
+myxts <- xts(cbind(df$v1, df$v2), df$date)
+str(myxts)
 ```
 
 ```
-## Loading required package: chron
+## An 'xts' object on 2014-05-01/2014-05-02 containing:
+##   Data: num [1:1441, 1:2] 4.44 4.77 6.56 5.07 5.13 ...
+##   Indexed by objects of class: [POSIXct,POSIXt] TZ: 
+##   xts Attributes:  
+##  NULL
 ```
 
-## library lubridate
+### mean by 15 mins
+#### to note all dates are aligned to the end of each period by default
 
 ```r
-require(lubridate)
+head(period.apply(myxts, endpoints(myxts, "mins", 15), mean, na.rm = TRUE))
 ```
 
 ```
-## Loading required package: lubridate
-## 
-## Attaching package: 'lubridate'
-## 
-## The following objects are masked from 'package:chron':
-## 
-##     days, hours, minutes, seconds, years
+##                      [,1]   [,2]
+## 2014-05-01 00:14:00 5.152 10.118
+## 2014-05-01 00:29:00 4.753 10.345
+## 2014-05-01 00:44:00 5.277 10.012
+## 2014-05-01 00:59:00 5.061 10.301
+## 2014-05-01 01:14:00 4.869  9.825
+## 2014-05-01 01:29:00 5.180  9.998
+```
+
+
+### mean by 2 hours mins
+
+```r
+head(period.apply(myxts, endpoints(myxts, "hours", 2), mean, na.rm = TRUE))
+```
+
+```
+##                      [,1]   [,2]
+## 2014-05-01 01:59:00 5.011 10.082
+## 2014-05-01 03:59:00 4.987  9.992
+## 2014-05-01 05:59:00 5.091 10.143
+## 2014-05-01 07:59:00 5.009 10.217
+## 2014-05-01 09:59:00 5.006 10.020
+## 2014-05-01 11:59:00 4.895  9.957
+```
+
+### xts has some useful facilities for subsetting
+
+```r
+# periodicity of dataset
+periodicity(myxts)
+```
+
+```
+## 1 minute periodicity from 2014-05-01 to 2014-05-02
+```
+
+```r
+
+# subset one single record
+myxts["2014-05-01 08:00"]
+```
+
+```
+##                     [,1]  [,2]
+## 2014-05-01 08:00:00 5.02 11.22
+```
+
+```r
+
+# subset starting from first rec up to...
+myxts["/2014-05-01 00:05"]
+```
+
+```
+##                      [,1]   [,2]
+## 2014-05-01 00:00:00 4.440  8.656
+## 2014-05-01 00:01:00 4.770 10.622
+## 2014-05-01 00:02:00 6.559 10.801
+## 2014-05-01 00:03:00 5.071  8.611
+## 2014-05-01 00:04:00 5.129  9.286
+## 2014-05-01 00:05:00 6.715  9.676
+```
+
+```r
+
+# subset first 5 recs
+first(myxts, "5 mins")
+```
+
+```
+##                      [,1]   [,2]
+## 2014-05-01 00:00:00 4.440  8.656
+## 2014-05-01 00:01:00 4.770 10.622
+## 2014-05-01 00:02:00 6.559 10.801
+## 2014-05-01 00:03:00 5.071  8.611
+## 2014-05-01 00:04:00 5.129  9.286
+```
+
+```r
+
+# subset last 5 recs
+last(myxts, "5 mins")
+```
+
+```
+##                      [,1]   [,2]
+## 2014-05-01 23:56:00 2.832 11.352
+## 2014-05-01 23:57:00 5.660  9.725
+## 2014-05-01 23:58:00 4.546  8.474
+## 2014-05-01 23:59:00 4.305  7.306
+## 2014-05-02 00:00:00 4.993 10.300
 ```
 

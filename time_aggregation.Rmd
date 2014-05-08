@@ -1,11 +1,11 @@
 # my little reminder for (just some) time aggregation methods
-### obviously many other methods are also possible but not here contemplated (known)!
+### obviously many others are also possible but not here contemplated (known)!
 
 *****
 
 ## generate some fake data to play with
 
-#### time sequence using POSIXct class (storing date-time and many other features like tz, dst)
+#### time sequence using POSIXct class (storing date-time and many other features like tz, dst); the genreal rule of thumb is to stick with the simplest date/time class one needs (...and that's why I'm keeping up with the most complex and dangeorus one, ugh!) 
 
 ```{r}
 # start and end of time seq
@@ -36,7 +36,7 @@ by15min<-as.POSIXct(seq(start, end, by=60*15))
 
 ```
 
-#### df with 3 vars 
+#### build up a df with 3 vars using "bymin" time sequence
 
 ```{r}
 set.seed(123)
@@ -109,7 +109,7 @@ head(aggregate(myzoo, format(index(myzoo),"%Y-%m-%d %H"), mean, na.rm=TRUE))
 ```
 
 
-### mean by hour 15 mins using cut
+### mean by 15 mins using cut
 
 ```{r}
 head(aggregate(myzoo, cut(index(myzoo), breaks="15 mins"), mean, na.rm=TRUE))
@@ -129,21 +129,41 @@ head(rollapply(myzoo,width=5,FUN=mean, by=5,align="right", na.rm=TRUE))
 ```
 
 
-
-
-
 ## library xts
+#### pretty similar to zoo object (derived by) but with some dedicated useful functions
 ```{r}
 require(xts)
-
 ```
-## library chron
+### myxts object
 ```{r}
-require(chron)
-
+myxts<-xts(cbind(df$v1,df$v2),df$date)
+str(myxts)
 ```
-## library lubridate
+### mean by 15 mins
+#### to note all dates are aligned to the end of each period by default
 ```{r}
-require(lubridate)
+head(period.apply(myxts,endpoints(myxts, "mins", 15), mean, na.rm=TRUE))
+```
+
+### mean by 2 hours mins
+```{r}
+head(period.apply(myxts,endpoints(myxts, "hours", 2), mean, na.rm=TRUE))
+```
+### xts has some useful facilities for subsetting
+```{r}
+#periodicity of dataset
+periodicity(myxts)
+
+#subset one single record
+myxts["2014-05-01 08:00"]
+
+#subset starting from first rec up to...
+myxts["/2014-05-01 00:05"]
+
+#subset first 5 recs
+first(myxts, "5 mins")
+
+#subset last 5 recs
+last(myxts, "5 mins")
 
 ```
