@@ -77,6 +77,24 @@ head(aggregate(df[c("v1","v2")], list(date=cut(df$date, breaks="hour")), mean, n
 head(aggregate(df[c("v1","v2")], list(date=cut(df$date, breaks="15 mins")), mean, na.rm = TRUE))
 ```
 
+### plot means by hour
+```{r}
+
+#aggregate data by hour
+means<-aggregate(df[c("v1","v2")], format(df["date"],"%Y-%m-%d %H"), mean, na.rm = TRUE)
+str(means)
+
+#create x axis temporal sequence (POSIXct) to be plotted
+means$date<-seq(df$date[1],df$date[nrow(df)], length=nrow(means))
+str(means)
+
+#plot the chart with formatted x axis
+plot(means$date, means$v1, type="l")
+
+```
+#### NB: many other formatting (aggregating) time sequences are also possible, see ?strptime for reference to further abbreviations
+
+
 ## aggregation through some dedicated package methods
 ****
 

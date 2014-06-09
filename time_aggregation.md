@@ -10,49 +10,48 @@
 
 ```r
 # start and end of time seq
-start <- as.POSIXct("2014-05-01 00:00:00")
-end <- as.POSIXct("2014-05-02 00:00:00")
+start <- as.POSIXct('2014-05-01 00:00:00')
+end <- as.POSIXct('2014-05-02 00:00:00')
 
 # by sec
-bysec <- as.POSIXct(seq(start, end, by = "sec"))
-# alternatively
-bysec <- as.POSIXct(seq(start, end, by = 1))
+bysec<-as.POSIXct(seq(start, end, by="sec"))
+#alternatively   
+bysec<-as.POSIXct(seq(start, end, by=1))
 
 # by min
-bymin <- as.POSIXct(seq(start, end, by = "min"))
-# alternatively
-bymin <- as.POSIXct(seq(start, end, by = 60))
+bymin<-as.POSIXct(seq(start, end, by="min"))
+# alternatively   
+bymin<-as.POSIXct(seq(start, end, by=60))
 
 # by hour
-byhour <- as.POSIXct(seq(start, end, by = "hour"))
-# alternatively
-byhour <- as.POSIXct(seq(start, end, by = 60 * 60))
+byhour<-as.POSIXct(seq(start, end, by="hour"))
+# alternatively 
+byhour<-as.POSIXct(seq(start, end, by=60*60))
 
 # and so on for other time intervals...
 
 # eg. by 15 minutes
-by15min <- as.POSIXct(seq(start, end, by = "15 mins"))
-# alternatively
-by15min <- as.POSIXct(seq(start, end, by = 60 * 15))
+by15min<-as.POSIXct(seq(start, end, by="15 mins"))
+# alternatively   
+by15min<-as.POSIXct(seq(start, end, by=60*15))
 ```
-
 
 #### build up a df with 3 vars using "bymin" time sequence
 
 
 ```r
 set.seed(123)
-v1 <- rnorm(length(bymin), 5)
+v1<-rnorm(length(bymin), 5)
 
 set.seed(456)
-v2 <- rnorm(length(bymin), 10)
+v2<-rnorm(length(bymin), 10)
 
 # here using bymin as time seq
-df <- data.frame(date = bymin, v1, v2)
+df<-data.frame(date=bymin,v1, v2)
 
 # introduce some random NAs
-df[sample(nrow(df), 20), "v1"] <- NA
-df[sample(nrow(df), 10), "v2"] <- NA
+df[sample(nrow(df),20),"v1"]<-NA
+df[sample(nrow(df),10),"v2"]<-NA
 
 summary(df)
 ```
@@ -79,14 +78,13 @@ str(df)
 ##  $ v2  : num  8.66 10.62 10.8 8.61 9.29 ...
 ```
 
-
 ## aggregation through base methods (no packages)
 ****
 
 ### mean by hour using format
 
 ```r
-head(aggregate(df[c("v1", "v2")], format(df["date"], "%Y-%m-%d %H"), mean, na.rm = TRUE))
+head(aggregate(df[c("v1","v2")], format(df["date"],"%Y-%m-%d %H"), mean, na.rm = TRUE))
 ```
 
 ```
@@ -100,8 +98,8 @@ head(aggregate(df[c("v1", "v2")], format(df["date"], "%Y-%m-%d %H"), mean, na.rm
 ```
 
 ```r
-# alternatively
-head(aggregate(df[c(2, 3)], format(df[1], "%Y-%m-%d %H"), mean, na.rm = TRUE))
+#alternatively
+head(aggregate(df[c(2,3)], format(df[1],"%Y-%m-%d %H"), mean, na.rm = TRUE))
 ```
 
 ```
@@ -113,14 +111,12 @@ head(aggregate(df[c(2, 3)], format(df[1], "%Y-%m-%d %H"), mean, na.rm = TRUE))
 ## 5 2014-05-01 04 5.194 10.023
 ## 6 2014-05-01 05 4.987 10.263
 ```
-
 
 ### mean by hour using cut
 
 ```r
 # see cut.POSIXt for refs
-head(aggregate(df[c("v1", "v2")], list(date = cut(df$date, breaks = "hour")), 
-    mean, na.rm = TRUE))
+head(aggregate(df[c("v1","v2")], list(date=cut(df$date, breaks="hour")), mean, na.rm = TRUE))
 ```
 
 ```
@@ -133,12 +129,10 @@ head(aggregate(df[c("v1", "v2")], list(date = cut(df$date, breaks = "hour")),
 ## 6 2014-05-01 05:00:00 4.987 10.263
 ```
 
-
 ### mean by 15 mins using cut
 
 ```r
-head(aggregate(df[c("v1", "v2")], list(date = cut(df$date, breaks = "15 mins")), 
-    mean, na.rm = TRUE))
+head(aggregate(df[c("v1","v2")], list(date=cut(df$date, breaks="15 mins")), mean, na.rm = TRUE))
 ```
 
 ```
@@ -150,6 +144,42 @@ head(aggregate(df[c("v1", "v2")], list(date = cut(df$date, breaks = "15 mins")),
 ## 5 2014-05-01 01:00:00 4.869  9.825
 ## 6 2014-05-01 01:15:00 5.180  9.998
 ```
+
+### plot means by hour
+
+```r
+#aggregate data by hour
+means<-aggregate(df[c("v1","v2")], format(df["date"],"%Y-%m-%d %H"), mean, na.rm = TRUE)
+str(means)
+```
+
+```
+## 'data.frame':	25 obs. of  3 variables:
+##  $ date:Class 'AsIs'  chr [1:25] "2014-05-01 00" "2014-05-01 01" "2014-05-01 02" "2014-05-01 03" ...
+##  $ v1  : num  5.06 4.97 5.01 4.96 5.19 ...
+##  $ v2  : num  10.19 9.97 9.79 10.2 10.02 ...
+```
+
+```r
+#create x axis temporal sequence (POSIXct) to be plotted
+means$date<-seq(df$date[1],df$date[nrow(df)], length=nrow(means))
+str(means)
+```
+
+```
+## 'data.frame':	25 obs. of  3 variables:
+##  $ date: POSIXct, format: "2014-05-01 00:00:00" "2014-05-01 01:00:00" ...
+##  $ v1  : num  5.06 4.97 5.01 4.96 5.19 ...
+##  $ v2  : num  10.19 9.97 9.79 10.2 10.02 ...
+```
+
+```r
+#plot the chart with formatted x axis
+plot(means$date, means$v1, type="l")
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6.png) 
+#### NB: many other formatting (aggregating) time sequences are also possible, see ?strptime for reference to further abbreviations
 
 
 ## aggregation through some dedicated package methods
@@ -171,11 +201,10 @@ require(zoo)
 ## 
 ##     as.Date, as.Date.numeric
 ```
-
 ### myzoo object
 
 ```r
-myzoo <- zoo(cbind(df$v1, df$v2), df$date)
+myzoo<-zoo(cbind(df$v1,df$v2),df$date)
 str(myzoo)
 ```
 
@@ -184,7 +213,6 @@ str(myzoo)
 ##   Data: num [1:1441, 1:2] 4.44 4.77 6.56 5.07 5.13 ...
 ##   Index:  POSIXct[1:1441], format: "2014-05-01 00:00:00" "2014-05-01 00:01:00" ...
 ```
-
 #### note index() or time()
 
 ### plot zoo series with lattice
@@ -198,23 +226,24 @@ require(lattice)
 ```
 
 ```r
-xyplot(myzoo, screens = c("v1", "v2"), scales = list(y = list(relation = "same")))
+xyplot(myzoo, screens=c("v1","v2"),
+       scales = list(y = list(relation = "same"))
+       )
 ```
 
-![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-81.png) 
+![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-91.png) 
 
 ```r
-xyplot(myzoo, superpose = TRUE, auto.key = list(text = c("v1", "v2")))
+xyplot(myzoo, superpose=TRUE, auto.key=list(text=c("v1", "v2")))
 ```
 
-![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-82.png) 
-
+![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-92.png) 
 
 ### mean by hour using format
 
 
 ```r
-head(aggregate(myzoo, format(index(myzoo), "%Y-%m-%d %H"), mean, na.rm = TRUE))
+head(aggregate(myzoo, format(index(myzoo),"%Y-%m-%d %H"), mean, na.rm=TRUE))
 ```
 
 ```
@@ -228,12 +257,11 @@ head(aggregate(myzoo, format(index(myzoo), "%Y-%m-%d %H"), mean, na.rm = TRUE))
 ```
 
 
-
 ### mean by 15 mins using cut
 
 
 ```r
-head(aggregate(myzoo, cut(index(myzoo), breaks = "15 mins"), mean, na.rm = TRUE))
+head(aggregate(myzoo, cut(index(myzoo), breaks="15 mins"), mean, na.rm=TRUE))
 ```
 
 ```
@@ -246,12 +274,11 @@ head(aggregate(myzoo, cut(index(myzoo), breaks = "15 mins"), mean, na.rm = TRUE)
 ## 2014-05-01 01:15:00 5.180  9.998
 ```
 
-
 ### rolling average by 5 mins (trailing average)
 
 
 ```r
-head(rollapply(myzoo, width = 5, mean, align = "right", na.rm = TRUE))
+head(rollapply(myzoo,width=5,mean, align="right", na.rm=TRUE))
 ```
 
 ```
@@ -263,14 +290,13 @@ head(rollapply(myzoo, width = 5, mean, align = "right", na.rm = TRUE))
 ## 2014-05-01 00:08:00 5.071 10.182
 ## 2014-05-01 00:09:00 4.956 10.440
 ```
-
 #### note that rollmean() does not handle NAs
 
 ### rolling average by 5 mins (average at every 5 mins)
 
 
 ```r
-head(rollapply(myzoo, width = 5, FUN = mean, by = 5, align = "right", na.rm = TRUE))
+head(rollapply(myzoo,width=5,FUN=mean, by=5,align="right", na.rm=TRUE))
 ```
 
 ```
@@ -284,7 +310,6 @@ head(rollapply(myzoo, width = 5, FUN = mean, by = 5, align = "right", na.rm = TR
 ```
 
 
-
 ## library xts
 #### pretty similar to zoo object (derived by) but with some dedicated useful functions
 
@@ -295,11 +320,10 @@ require(xts)
 ```
 ## Loading required package: xts
 ```
-
 ### myxts object
 
 ```r
-myxts <- xts(cbind(df$v1, df$v2), df$date)
+myxts<-xts(cbind(df$v1,df$v2),df$date)
 str(myxts)
 ```
 
@@ -310,12 +334,11 @@ str(myxts)
 ##   xts Attributes:  
 ##  NULL
 ```
-
 ### mean by 15 mins
 #### to note all dates are aligned to the end of each period by default
 
 ```r
-head(period.apply(myxts, endpoints(myxts, "mins", 15), mean, na.rm = TRUE))
+head(period.apply(myxts,endpoints(myxts, "mins", 15), mean, na.rm=TRUE))
 ```
 
 ```
@@ -328,11 +351,10 @@ head(period.apply(myxts, endpoints(myxts, "mins", 15), mean, na.rm = TRUE))
 ## 2014-05-01 01:29:00 5.180  9.998
 ```
 
-
 ### mean by 2 hours mins
 
 ```r
-head(period.apply(myxts, endpoints(myxts, "hours", 2), mean, na.rm = TRUE))
+head(period.apply(myxts,endpoints(myxts, "hours", 2), mean, na.rm=TRUE))
 ```
 
 ```
@@ -344,11 +366,10 @@ head(period.apply(myxts, endpoints(myxts, "hours", 2), mean, na.rm = TRUE))
 ## 2014-05-01 09:59:00 5.006 10.020
 ## 2014-05-01 11:59:00 4.895  9.957
 ```
-
 ### xts has some useful facilities for subsetting
 
 ```r
-# periodicity of dataset
+#periodicity of dataset
 periodicity(myxts)
 ```
 
@@ -357,8 +378,7 @@ periodicity(myxts)
 ```
 
 ```r
-
-# subset one single record
+#subset one single record
 myxts["2014-05-01 08:00"]
 ```
 
@@ -368,8 +388,7 @@ myxts["2014-05-01 08:00"]
 ```
 
 ```r
-
-# subset starting from first rec up to...
+#subset starting from first rec up to...
 myxts["/2014-05-01 00:05"]
 ```
 
@@ -384,8 +403,7 @@ myxts["/2014-05-01 00:05"]
 ```
 
 ```r
-
-# subset first 5 recs
+#subset first 5 recs
 first(myxts, "5 mins")
 ```
 
@@ -399,8 +417,7 @@ first(myxts, "5 mins")
 ```
 
 ```r
-
-# subset last 5 recs
+#subset last 5 recs
 last(myxts, "5 mins")
 ```
 
@@ -412,4 +429,3 @@ last(myxts, "5 mins")
 ## 2014-05-01 23:59:00 4.305  7.306
 ## 2014-05-02 00:00:00 4.993 10.300
 ```
-
