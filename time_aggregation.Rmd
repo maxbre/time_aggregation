@@ -5,8 +5,10 @@
 
 ## generate some fake data to play with
 
-#### time sequence using POSIXct class (storing date-time and many other features like tz, dst); the genreal rule of thumb is to stick with the simplest date/time class one needs (...and that's why I'm keeping up with the most complex and dangeorus one, ugh!) 
-
+```
+time sequence using POSIXct class (storing date-time and many other features like tz, dst);   
+general rule of thumb is to stick with the simplest date/time class one needs (...and that's why I'm keeping up with the most complex and dangeorus one, ugh!) 
+```
 ```{r}
 # start and end of time seq
 start <- as.POSIXct('2014-05-01 00:00:00')
@@ -35,8 +37,9 @@ by15min<-as.POSIXct(seq(start, end, by="15 mins"))
 by15min<-as.POSIXct(seq(start, end, by=60*15))
 
 ```
-
-#### build up a df with 3 vars using "bymin" time sequence
+```
+build up a df with 3 vars using "bymin" time sequence
+```
 
 ```{r}
 set.seed(123)
@@ -55,8 +58,8 @@ df[sample(nrow(df),10),"v2"]<-NA
 summary(df)
 str(df)
 ```
-
-## aggregation through base methods (no packages)
+****
+## time aggregation through base methods (no packages)
 ****
 
 ### mean by hour using format
@@ -88,14 +91,36 @@ str(means)
 means$date<-seq(df$date[1],df$date[nrow(df)], length=nrow(means))
 str(means)
 
-#plot the chart with formatted x axis
+```
+```
+NB: many other formatting (aggregating) time sequences are also possible, see ?strptime for reference to further abbreviations
+```
+
+```{r}
+# default plot
 plot(means$date, means$v1, type="l")
+```
+
+```{r}
+# default axis (number of tickmarks) with user formatted labels
+plot(means$date, means$v1, type="l", xaxt="n")
+axis.POSIXct(1, means$date, format="hh %H")
+```
+
+```{r}
+# default axis (number of tickmarks) with user formatted labels 
+plot(means$date, means$v1, type="l", xaxt="n")
+axis.POSIXct(1, means$date, at=seq(min(means$date), max(means$date), by="hours"),
+             format="hh %H", las=2, cex=0.8)
+# adding some reference lines
+abline(v=as.POSIXct("01/05/2014 00", format="%d/%m/%Y %H"), col="cyan")
+abline(v=as.POSIXct("01/05/2014 12", format="%d/%m/%Y %H"), col="red")
+abline(v=as.POSIXct("02/05/2014 00", format="%d/%m/%Y %H"), col="green")
 
 ```
-#### NB: many other formatting (aggregating) time sequences are also possible, see ?strptime for reference to further abbreviations
 
-
-## aggregation through some dedicated package methods
+****
+## time aggregation through some dedicated package methods
 ****
 
 ## library zoo (just some relvant examples)
@@ -108,8 +133,9 @@ require(zoo)
 myzoo<-zoo(cbind(df$v1,df$v2),df$date)
 str(myzoo)
 ```
-#### note index() or time()
-
+```
+NB: index() or time()
+```
 ### plot zoo series with lattice
 ```{r}
 require(lattice)
@@ -138,8 +164,9 @@ head(aggregate(myzoo, cut(index(myzoo), breaks="15 mins"), mean, na.rm=TRUE))
 ```{r}
 head(rollapply(myzoo,width=5,mean, align="right", na.rm=TRUE))
 ```
-#### note that rollmean() does not handle NAs
-
+```
+NB: rollmean() does not handle NAs
+```
 ### rolling average by 5 mins (average at every 5 mins)
 
 ```{r}
@@ -148,7 +175,9 @@ head(rollapply(myzoo,width=5,FUN=mean, by=5,align="right", na.rm=TRUE))
 
 
 ## library xts
-#### pretty similar to zoo object (derived by) but with some dedicated useful functions
+```
+pretty similar to zoo object (derived by) but with some dedicated useful functions
+```
 ```{r}
 require(xts)
 ```
@@ -158,7 +187,9 @@ myxts<-xts(cbind(df$v1,df$v2),df$date)
 str(myxts)
 ```
 ### mean by 15 mins
-#### to note all dates are aligned to the end of each period by default
+```
+NB: all dates are aligned to the end of each period by default
+```
 ```{r}
 head(period.apply(myxts,endpoints(myxts, "mins", 15), mean, na.rm=TRUE))
 ```

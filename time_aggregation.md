@@ -5,8 +5,10 @@
 
 ## generate some fake data to play with
 
-#### time sequence using POSIXct class (storing date-time and many other features like tz, dst); the genreal rule of thumb is to stick with the simplest date/time class one needs (...and that's why I'm keeping up with the most complex and dangeorus one, ugh!) 
-
+```
+time sequence using POSIXct class (storing date-time and many other features like tz, dst);   
+general rule of thumb is to stick with the simplest date/time class one needs (...and that's why I'm keeping up with the most complex and dangeorus one, ugh!) 
+```
 
 ```r
 # start and end of time seq
@@ -35,8 +37,9 @@ by15min<-as.POSIXct(seq(start, end, by="15 mins"))
 # alternatively   
 by15min<-as.POSIXct(seq(start, end, by=60*15))
 ```
-
-#### build up a df with 3 vars using "bymin" time sequence
+```
+build up a df with 3 vars using "bymin" time sequence
+```
 
 
 ```r
@@ -77,8 +80,8 @@ str(df)
 ##  $ v1  : num  4.44 4.77 6.56 5.07 5.13 ...
 ##  $ v2  : num  8.66 10.62 10.8 8.61 9.29 ...
 ```
-
-## aggregation through base methods (no packages)
+****
+## time aggregation through base methods (no packages)
 ****
 
 ### mean by hour using format
@@ -172,17 +175,43 @@ str(means)
 ##  $ v1  : num  5.06 4.97 5.01 4.96 5.19 ...
 ##  $ v2  : num  10.19 9.97 9.79 10.2 10.02 ...
 ```
+```
+NB: many other formatting (aggregating) time sequences are also possible, see ?strptime for reference to further abbreviations
+```
+
 
 ```r
-#plot the chart with formatted x axis
+# default plot
 plot(means$date, means$v1, type="l")
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6.png) 
-#### NB: many other formatting (aggregating) time sequences are also possible, see ?strptime for reference to further abbreviations
+![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7.png) 
 
 
-## aggregation through some dedicated package methods
+```r
+# default axis (number of tickmarks) with user formatted labels
+plot(means$date, means$v1, type="l", xaxt="n")
+axis.POSIXct(1, means$date, format="hh %H")
+```
+
+![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8.png) 
+
+
+```r
+# default axis (number of tickmarks) with user formatted labels 
+plot(means$date, means$v1, type="l", xaxt="n")
+axis.POSIXct(1, means$date, at=seq(min(means$date), max(means$date), by="hours"),
+             format="hh %H", las=2, cex=0.8)
+# adding some reference lines
+abline(v=as.POSIXct("01/05/2014 00", format="%d/%m/%Y %H"), col="cyan")
+abline(v=as.POSIXct("01/05/2014 12", format="%d/%m/%Y %H"), col="red")
+abline(v=as.POSIXct("02/05/2014 00", format="%d/%m/%Y %H"), col="green")
+```
+
+![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9.png) 
+
+****
+## time aggregation through some dedicated package methods
 ****
 
 ## library zoo (just some relvant examples)
@@ -213,8 +242,9 @@ str(myzoo)
 ##   Data: num [1:1441, 1:2] 4.44 4.77 6.56 5.07 5.13 ...
 ##   Index:  POSIXct[1:1441], format: "2014-05-01 00:00:00" "2014-05-01 00:01:00" ...
 ```
-#### note index() or time()
-
+```
+NB: index() or time()
+```
 ### plot zoo series with lattice
 
 ```r
@@ -231,13 +261,13 @@ xyplot(myzoo, screens=c("v1","v2"),
        )
 ```
 
-![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-91.png) 
+![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-121.png) 
 
 ```r
 xyplot(myzoo, superpose=TRUE, auto.key=list(text=c("v1", "v2")))
 ```
 
-![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-92.png) 
+![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-122.png) 
 
 ### mean by hour using format
 
@@ -290,8 +320,9 @@ head(rollapply(myzoo,width=5,mean, align="right", na.rm=TRUE))
 ## 2014-05-01 00:08:00 5.071 10.182
 ## 2014-05-01 00:09:00 4.956 10.440
 ```
-#### note that rollmean() does not handle NAs
-
+```
+NB: rollmean() does not handle NAs
+```
 ### rolling average by 5 mins (average at every 5 mins)
 
 
@@ -311,7 +342,9 @@ head(rollapply(myzoo,width=5,FUN=mean, by=5,align="right", na.rm=TRUE))
 
 
 ## library xts
-#### pretty similar to zoo object (derived by) but with some dedicated useful functions
+```
+pretty similar to zoo object (derived by) but with some dedicated useful functions
+```
 
 ```r
 require(xts)
@@ -335,7 +368,9 @@ str(myxts)
 ##  NULL
 ```
 ### mean by 15 mins
-#### to note all dates are aligned to the end of each period by default
+```
+NB: all dates are aligned to the end of each period by default
+```
 
 ```r
 head(period.apply(myxts,endpoints(myxts, "mins", 15), mean, na.rm=TRUE))
