@@ -274,6 +274,7 @@ xyplot(myzoo, superpose=TRUE, auto.key=list(text=c("v1", "v2")))
 ```r
 # user defined axis (number of tickmarks) and formatted labels 
 mydate<-seq(from = min(index(myzoo)), to = max(index(myzoo)), length.out = 6)
+
 xyplot(myzoo, superpose=TRUE, auto.key=list(text=c("v1", "v2")),
        scale = list(x = list(at = mydate, labels = format(mydate, "hh %H"),
                              cex = 0.8, rot=90))
@@ -281,6 +282,17 @@ xyplot(myzoo, superpose=TRUE, auto.key=list(text=c("v1", "v2")),
 ```
 
 ![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-123.png) 
+
+```r
+#alternative
+mydate2<-seq(from = min(index(myzoo)), to = max(index(myzoo)), by="4 hours")
+xyplot(myzoo, superpose=TRUE, auto.key=list(text=c("v1", "v2")),
+       scale = list(x = list(at = mydate2, labels = format(mydate2, "hh %H"),
+                             cex = 0.8, rot=90))
+       )
+```
+
+![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-124.png) 
 
 ### mean by hour using format
 
