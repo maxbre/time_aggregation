@@ -123,7 +123,7 @@ abline(v=as.POSIXct("02/05/2014 00", format="%d/%m/%Y %H"), col="green")
 ## time aggregation through some dedicated package methods
 ****
 
-## library zoo (just some relvant examples)
+## library zoo (just some relevant examples)
 
 ```{r}
 require(zoo)
