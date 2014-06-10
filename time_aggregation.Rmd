@@ -108,7 +108,7 @@ axis.POSIXct(1, means$date, format="hh %H")
 ```
 
 ```{r}
-# default axis (number of tickmarks) with user formatted labels 
+# user defined axis (number of tickmarks) and formatted labels 
 plot(means$date, means$v1, type="l", xaxt="n")
 axis.POSIXct(1, means$date, at=seq(min(means$date), max(means$date), by="hours"),
              format="hh %H", las=2, cex=0.8)
@@ -139,11 +139,19 @@ NB: index() or time()
 ### plot zoo series with lattice
 ```{r}
 require(lattice)
+# default plot
 xyplot(myzoo, screens=c("v1","v2"),
        scales = list(y = list(relation = "same"))
        )
+# superposed plot
 xyplot(myzoo, superpose=TRUE, auto.key=list(text=c("v1", "v2")))
 
+# user defined axis (number of tickmarks) and formatted labels 
+mydate<-seq(from = min(index(myzoo)), to = max(index(myzoo)), length.out = 6)
+xyplot(myzoo, superpose=TRUE, auto.key=list(text=c("v1", "v2")),
+       scale = list(x = list(at = mydate, labels = format(mydate, "hh %H"),
+                             cex = 0.8, rot=90))
+       )
 ```
 
 ### mean by hour using format
@@ -151,7 +159,6 @@ xyplot(myzoo, superpose=TRUE, auto.key=list(text=c("v1", "v2")))
 ```{r}
 head(aggregate(myzoo, format(index(myzoo),"%Y-%m-%d %H"), mean, na.rm=TRUE))
 ```
-
 
 ### mean by 15 mins using cut
 

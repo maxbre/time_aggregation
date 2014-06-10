@@ -198,7 +198,7 @@ axis.POSIXct(1, means$date, format="hh %H")
 
 
 ```r
-# default axis (number of tickmarks) with user formatted labels 
+# user defined axis (number of tickmarks) and formatted labels 
 plot(means$date, means$v1, type="l", xaxt="n")
 axis.POSIXct(1, means$date, at=seq(min(means$date), max(means$date), by="hours"),
              format="hh %H", las=2, cex=0.8)
@@ -214,7 +214,7 @@ abline(v=as.POSIXct("02/05/2014 00", format="%d/%m/%Y %H"), col="green")
 ## time aggregation through some dedicated package methods
 ****
 
-## library zoo (just some relvant examples)
+## library zoo (just some relevant examples)
 
 
 ```r
@@ -256,6 +256,7 @@ require(lattice)
 ```
 
 ```r
+# default plot
 xyplot(myzoo, screens=c("v1","v2"),
        scales = list(y = list(relation = "same"))
        )
@@ -264,10 +265,22 @@ xyplot(myzoo, screens=c("v1","v2"),
 ![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-121.png) 
 
 ```r
+# superposed plot
 xyplot(myzoo, superpose=TRUE, auto.key=list(text=c("v1", "v2")))
 ```
 
 ![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-122.png) 
+
+```r
+# user defined axis (number of tickmarks) and formatted labels 
+mydate<-seq(from = min(index(myzoo)), to = max(index(myzoo)), length.out = 6)
+xyplot(myzoo, superpose=TRUE, auto.key=list(text=c("v1", "v2")),
+       scale = list(x = list(at = mydate, labels = format(mydate, "hh %H"),
+                             cex = 0.8, rot=90))
+       )
+```
+
+![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-123.png) 
 
 ### mean by hour using format
 
@@ -285,7 +298,6 @@ head(aggregate(myzoo, format(index(myzoo),"%Y-%m-%d %H"), mean, na.rm=TRUE))
 ## 2014-05-01 04 5.194 10.023
 ## 2014-05-01 05 4.987 10.263
 ```
-
 
 ### mean by 15 mins using cut
 
