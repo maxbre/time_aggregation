@@ -1,14 +1,18 @@
-# my little reminder for (just some) time aggregation methods
-### obviously many others are also possible but not here contemplated (known)!
+# my little reminder...
+***
+# ...for some time aggregation methods in R
+***
+
+### obviously many other methods are possible but not here contemplated (...and also not known!)
 
 *****
 
 ## generate some fake data to play with
 
-```
+
 time sequence using POSIXct class (storing date-time and many other features like tz, dst);   
 general rule of thumb is to stick with the simplest date/time class one needs (...and that's why I'm keeping up with the most complex and dangeorus one, ugh!) 
-```
+
 ```{r}
 # start and end of time seq
 start <- as.POSIXct('2014-05-01 00:00:00')
@@ -35,11 +39,9 @@ byhour<-as.POSIXct(seq(start, end, by=60*60))
 by15min<-as.POSIXct(seq(start, end, by="15 mins"))
 # alternatively   
 by15min<-as.POSIXct(seq(start, end, by=60*15))
+```
 
-```
-```
 build up a df with 3 vars using "bymin" time sequence
-```
 
 ```{r}
 set.seed(123)
@@ -92,9 +94,8 @@ means$date<-seq(df$date[1],df$date[nrow(df)], length=nrow(means))
 str(means)
 
 ```
-```
+
 NB: many other formatting (aggregating) time sequences are also possible, see ?strptime for reference to further abbreviations
-```
 
 ```{r}
 # default plot
@@ -116,7 +117,6 @@ axis.POSIXct(1, means$date, at=seq(min(means$date), max(means$date), by="hours")
 abline(v=as.POSIXct("01/05/2014 00", format="%d/%m/%Y %H"), col="cyan")
 abline(v=as.POSIXct("01/05/2014 12", format="%d/%m/%Y %H"), col="red")
 abline(v=as.POSIXct("02/05/2014 00", format="%d/%m/%Y %H"), col="green")
-
 ```
 
 ****
@@ -128,15 +128,18 @@ abline(v=as.POSIXct("02/05/2014 00", format="%d/%m/%Y %H"), col="green")
 ```{r}
 require(zoo)
 ```
+
 ### myzoo object
+
 ```{r}
 myzoo<-zoo(cbind(df$v1,df$v2),df$date)
 str(myzoo)
 ```
-```
+
 NB: index() or time()
-```
+
 ### plot zoo series with lattice
+
 ```{r}
 require(lattice)
 # default plot
@@ -178,9 +181,9 @@ head(aggregate(myzoo, cut(index(myzoo), breaks="15 mins"), mean, na.rm=TRUE))
 ```{r}
 head(rollapply(myzoo,width=5,mean, align="right", na.rm=TRUE))
 ```
-```
+
 NB: rollmean() does not handle NAs
-```
+
 ### rolling average by 5 mins (average at every 5 mins)
 
 ```{r}
@@ -189,30 +192,35 @@ head(rollapply(myzoo,width=5,FUN=mean, by=5,align="right", na.rm=TRUE))
 
 
 ## library xts
-```
+
 pretty similar to zoo object (derived by) but with some dedicated useful functions
-```
+
 ```{r}
 require(xts)
 ```
+
 ### myxts object
+
 ```{r}
 myxts<-xts(cbind(df$v1,df$v2),df$date)
 str(myxts)
 ```
+
 ### mean by 15 mins
-```
+
 NB: all dates are aligned to the end of each period by default
-```
+
 ```{r}
 head(period.apply(myxts,endpoints(myxts, "mins", 15), mean, na.rm=TRUE))
 ```
 
 ### mean by 2 hours mins
+
 ```{r}
 head(period.apply(myxts,endpoints(myxts, "hours", 2), mean, na.rm=TRUE))
 ```
 ### xts has some useful facilities for subsetting
+
 ```{r}
 #periodicity of dataset
 periodicity(myxts)
@@ -228,5 +236,4 @@ first(myxts, "5 mins")
 
 #subset last 5 recs
 last(myxts, "5 mins")
-
 ```
