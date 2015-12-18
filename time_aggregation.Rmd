@@ -3,7 +3,7 @@
 # ...for some time aggregation methods in R
 ***
 
-### obviously many other methods are possible but not here contemplated (...and also not known!)
+### obviously many other methods are possible but are not here contemplated (...and also not known!)
 
 *****
 
@@ -11,10 +11,10 @@
 
 
 time sequence using POSIXct class (storing date-time and many other features like tz, dst);   
-general rule of thumb is to stick with the simplest date/time class one needs (...and that's why I'm keeping up with the most complex and dangeorus one, ugh!) 
+a general rule of thumb is to stick with the simplest date/time class one needs (...and that's why I'm keeping up with the most complex and dangeorus one, ..uugh!) 
 
 ```{r}
-# start and end of time seq
+# set the start and the end of a time sequence
 start <- as.POSIXct('2014-05-01 00:00:00')
 end <- as.POSIXct('2014-05-02 00:00:00')
 
@@ -41,7 +41,7 @@ by15min<-as.POSIXct(seq(start, end, by="15 mins"))
 by15min<-as.POSIXct(seq(start, end, by=60*15))
 ```
 
-build up a df with 3 vars using "bymin" time sequence
+next, build up a df with 3 vars using "bymin" time sequence
 
 ```{r}
 set.seed(123)
@@ -50,7 +50,7 @@ v1<-rnorm(length(bymin), 5)
 set.seed(456)
 v2<-rnorm(length(bymin), 10)
 
-# here using bymin as time seq
+# set df
 df<-data.frame(date=bymin,v1, v2)
 
 # introduce some random NAs
@@ -61,7 +61,7 @@ summary(df)
 str(df)
 ```
 ****
-## time aggregation through base methods (no packages)
+## time aggregation through the 'base' methods (no packages)
 ****
 
 ### mean by hour using format
