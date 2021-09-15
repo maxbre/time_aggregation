@@ -7,7 +7,7 @@
 
 *****
 
-## generate some fake data to play with
+## by first, generate some fake data to play with
 
 
 time sequence using POSIXct class (storing date-time and many other features like tz, dst);   
@@ -236,4 +236,10 @@ first(myxts, "5 mins")
 
 #subset last 5 recs
 last(myxts, "5 mins")
+
 ```
+
+
+## tidyverse (with lubridate) approach
+
+to be done!
