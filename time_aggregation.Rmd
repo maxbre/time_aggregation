@@ -242,4 +242,4 @@ last(myxts, "5 mins")
 
 ## tidyverse (with lubridate) approach
 
-to be done!
+to be done, in the near future hopefully!
